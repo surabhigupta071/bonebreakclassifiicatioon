@@ -15,6 +15,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# Root endpoint
+@app.get("/")
+def root():
+    return {"message": "API is running"}
+
+
 # Load your model ONCE when the app starts
 model = load_model("bone_model.keras")
 
@@ -43,5 +50,19 @@ def prediction_to_text(prediction):
         return "Fracture detected"
     else:
         return "No fracture detected"
+
+
+@app.post("/analyze")
+async def analyze(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        input_array = preprocess_image(image)
+        prediction = model.predict(input_array)
+        result = prediction_to_text(prediction)
+        return {"result": result}
+    except Exception as e:
+        return {"error": str(e)}
+
 
 
