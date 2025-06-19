@@ -24,3 +24,7 @@ async def analyze(file: UploadFile = File(...)):
     image = Image.open(io.BytesIO(contents))
     result = your_model_analysis_function(image)
     return {"result": result}
+    
+@app.get("/")
+async def root():
+    return {"message": "API is working! Use POST /analyze to upload an image."}
