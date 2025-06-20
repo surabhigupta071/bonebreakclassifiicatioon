@@ -35,16 +35,21 @@ def preprocess_image(image: Image.Image):
 
 @app.post("/analyze")
 async def analyze(file: UploadFile = File(...)):
-    print("Received file")
-    contents = await file.read()
-    print("Read file contents")
-    image = Image.open(io.BytesIO(contents)).convert("RGB")
-    input_array = preprocess_image(image)
-    print("Preprocessed image")
-    prediction = model.predict(input_array)
-    print(f"Prediction raw output: {prediction}")
-    result = prediction_to_text(prediction)
-    return {"result": result}
+    try:
+        print("Received file")
+        contents = await file.read()
+        print("Read file contents")
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        input_array = preprocess_image(image)
+        print("Preprocessed image")
+        prediction = model.predict(input_array)
+        print(f"Prediction raw output: {prediction}")
+        result = prediction_to_text(prediction)
+        print(f"Result: {result}")
+        return {"result": result}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"error": str(e)}
 
 
 def prediction_to_text(prediction):
@@ -56,17 +61,6 @@ def prediction_to_text(prediction):
         return "No fracture detected"
 
 
-@app.post("/analyze")
-async def analyze(file: UploadFile = File(...)):
-    try:
-        contents = await file.read()
-        image = Image.open(io.BytesIO(contents)).convert("RGB")
-        input_array = preprocess_image(image)
-        prediction = model.predict(input_array)
-        result = prediction_to_text(prediction)
-        return {"result": result}
-    except Exception as e:
-        return {"error": str(e)}
 
 
 
