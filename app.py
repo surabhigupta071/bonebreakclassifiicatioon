@@ -32,16 +32,20 @@ def preprocess_image(image: Image.Image):
     image_array = np.expand_dims(image_array, axis=0)  # Add batch dim
     return image_array
 
+
 @app.post("/analyze")
 async def analyze(file: UploadFile = File(...)):
+    print("Received file")
     contents = await file.read()
+    print("Read file contents")
     image = Image.open(io.BytesIO(contents)).convert("RGB")
     input_array = preprocess_image(image)
+    print("Preprocessed image")
     prediction = model.predict(input_array)
-    # Convert your model prediction to human readable output
-    # This depends on your model's output structure!
+    print(f"Prediction raw output: {prediction}")
     result = prediction_to_text(prediction)
     return {"result": result}
+
 
 def prediction_to_text(prediction):
     # TODO: Change this to fit your model output
